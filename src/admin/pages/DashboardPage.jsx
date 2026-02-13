@@ -1,7 +1,10 @@
-import React from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import React, { useEffect, useState } from 'react';
+import { useDispatch } from 'react-redux';
 import { MdClass, MdMap, MdPeople, MdPermMedia } from 'react-icons/md';
 import { addToast, openModal } from '../../store/slices/uiSlice';
+import { courseService } from '../../services/courseService';
+import { roadmapService } from '../../services/roadmapService';
+import { orderService } from '../../services/orderService';
 
 const StatCard = ({ title, value, icon: Icon, color }) => (
   <div className="bg-white p-6 rounded-2xl shadow-sm border border-border-light flex items-center justify-between">
@@ -16,54 +19,43 @@ const StatCard = ({ title, value, icon: Icon, color }) => (
 );
 
 const DashboardPage = () => {
-  const { courses, roadmaps, instructors } = useSelector(state => state.db);
-  const dbState = useSelector(state => state.db);
   const dispatch = useDispatch();
+  const [stats, setStats] = useState({ courses: 0, roadmaps: 0, orders: 0 });
+  const [loading, setLoading] = useState(true);
 
-  const stats = [
-    {
-      title: 'إجمالي الدورات',
-      value: courses.allIds.length,
-      icon: MdClass,
-      color: 'bg-blue-500'
-    },
-    {
-      title: 'المسارات التعليمية',
-      value: roadmaps.allIds.length,
-      icon: MdMap,
-      color: 'bg-green-500'
-    },
-    {
-      title: 'المدربين',
-      value: instructors.allIds.length,
-      icon: MdPeople,
-      color: 'bg-purple-500'
-    },
-  ];
-
-  const handleExport = () => {
-    const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(dbState));
-    const downloadAnchorNode = document.createElement('a');
-    downloadAnchorNode.setAttribute("href", dataStr);
-    downloadAnchorNode.setAttribute("download", "shams-elarab-db.json");
-    document.body.appendChild(downloadAnchorNode);
-    downloadAnchorNode.click();
-    downloadAnchorNode.remove();
-    dispatch(addToast({ type: 'success', message: 'تم تصدير قاعدة البيانات بنجاح' }));
-  };
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const [courses, roadmaps, orders] = await Promise.all([
+          courseService.getAllCourses(false), // Fetch all including hidden
+          roadmapService.getAllRoadmaps(),
+          orderService.getOrders()
+        ]);
+        setStats({
+          courses: courses.length,
+          roadmaps: roadmaps.length,
+          orders: orders.length
+        });
+      } catch (error) {
+        console.error("Error fetching stats:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchStats();
+  }, []);
 
   const handleReset = () => {
     dispatch(openModal({
       type: 'CONFIRM',
       props: {
-        title: 'إعادة ضبط قاعدة البيانات',
-        message: 'سيتم حذف جميع التعديلات والعودة إلى البيانات الأصلية. هل أنت متأكد؟',
+        title: 'إعادة ضبط قاعدة البيانات المحلية',
+        message: 'سيتم حذف البيانات المحلية (Local Storage). البيانات على Firestore لن تتأثر.',
         confirmText: 'نعم، إعادة الضبط',
         isDestructive: true,
         onConfirm: () => {
-          // Clear persistence
           try {
-            localStorage.removeItem('shams_admin_db_v1');
+            localStorage.clear();
             window.location.reload();
           } catch (e) {
             console.error(e);
@@ -74,34 +66,49 @@ const DashboardPage = () => {
     }));
   };
 
+  const dashboardStats = [
+    {
+      title: 'إجمالي الدورات',
+      value: loading ? '...' : stats.courses,
+      icon: MdClass,
+      color: 'bg-blue-500'
+    },
+    {
+      title: 'المسارات التعليمية',
+      value: loading ? '...' : stats.roadmaps,
+      icon: MdMap,
+      color: 'bg-green-500'
+    },
+    {
+      title: 'الطلبات',
+      value: loading ? '...' : stats.orders,
+      icon: MdPeople,
+      color: 'bg-purple-500'
+    },
+  ];
+
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-bold text-heading-brown">لوحة المعلومات</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {stats.map((stat, idx) => (
+        {dashboardStats.map((stat, idx) => (
           <StatCard key={idx} {...stat} />
         ))}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-border-light">
-          <h2 className="text-lg font-bold mb-4">إدارة قاعدة البيانات</h2>
+          <h2 className="text-lg font-bold mb-4">أدوات النظام</h2>
           <p className="text-sm text-gray-500 mb-4">
-            يمكنك تصدير البيانات الحالية كملف JSON لنسخها احتياطياً، أو إعادة ضبط النظام إلى وضعه الافتراضي.
+            أدوات مفيدة لإدارة البيانات ونقلها.
           </p>
           <div className="flex gap-4">
-            <button
-              onClick={handleExport}
-              className="flex-1 bg-gray-50 hover:bg-gray-100 text-heading-brown font-bold py-3 px-4 rounded-xl transition-colors border border-gray-200"
-            >
-              تصدير (Backup)
-            </button>
             <button
               onClick={handleReset}
               className="flex-1 bg-red-50 hover:bg-red-100 text-red-600 font-bold py-3 px-4 rounded-xl transition-colors border border-red-100"
             >
-              إعادة ضبط (Reset)
+              تنظيف المحلي (Reset Storage)
             </button>
           </div>
         </div>
@@ -110,10 +117,10 @@ const DashboardPage = () => {
           <h2 className="text-lg font-bold mb-4">حالة النظام</h2>
           <div className="space-y-4">
             <div className="flex justify-between items-center border-b border-border-light pb-2">
-              <span className="text-gray-600">حالة التخزين</span>
+              <span className="text-gray-600">قاعدة البيانات</span>
               <span className="text-green-600 font-bold flex items-center gap-1">
                 <span className="w-2 h-2 rounded-full bg-green-500"></span>
-                يعمل (LocalStorage)
+                Firestore Connected
               </span>
             </div>
             <div className="flex justify-between items-center border-b border-border-light pb-2">
@@ -124,7 +131,7 @@ const DashboardPage = () => {
             </div>
             <div className="flex justify-between items-center">
               <span className="text-gray-600">نسخة التطبيق</span>
-              <span className="text-gray-900 font-bold">1.0.0</span>
+              <span className="text-gray-900 font-bold">1.2.0 (Firestore)</span>
             </div>
           </div>
         </div>

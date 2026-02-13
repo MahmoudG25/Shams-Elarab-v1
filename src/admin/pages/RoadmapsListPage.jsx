@@ -1,12 +1,30 @@
-import React from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import { deleteRoadmap } from '../../store/slices/dbSlice';
+import React, { useState, useEffect } from 'react';
+import { useDispatch } from 'react-redux';
 import { openModal, addToast } from '../../store/slices/uiSlice';
 import DataTable from '../components/DataTable';
+import { roadmapService } from '../../services/roadmapService';
 
 const RoadmapsListPage = () => {
-  const { roadmaps } = useSelector(state => state.db);
+  const [roadmaps, setRoadmaps] = useState([]);
+  const [loading, setLoading] = useState(true);
   const dispatch = useDispatch();
+
+  const fetchRoadmaps = async () => {
+    setLoading(true);
+    try {
+      const data = await roadmapService.getAllRoadmaps();
+      setRoadmaps(data);
+    } catch (error) {
+      console.error("Failed to fetch roadmaps:", error);
+      dispatch(addToast({ type: 'error', message: 'فشل تحميل المسارات' }));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchRoadmaps();
+  }, []);
 
   const handleDelete = (roadmap) => {
     dispatch(openModal({
@@ -16,15 +34,21 @@ const RoadmapsListPage = () => {
         message: `هل أنت متأكد من حذف مسار "${roadmap.title}"؟`,
         confirmText: 'حذف',
         isDestructive: true,
-        onConfirm: () => {
-          dispatch(deleteRoadmap(roadmap.id));
-          dispatch(addToast({ type: 'success', message: 'تم حذف المسار بنجاح' }));
+        onConfirm: async () => {
+          try {
+            await roadmapService.deleteRoadmap(roadmap.id);
+            dispatch(addToast({ type: 'success', message: 'تم حذف المسار بنجاح' }));
+            fetchRoadmaps();
+          } catch (error) {
+            console.error("Delete failed:", error);
+            dispatch(addToast({ type: 'error', message: 'فشل حذف المسار' }));
+          }
         }
       }
     }));
   };
 
-  const data = roadmaps.allIds.map(id => roadmaps.byId[id]);
+  if (loading) return <div>Loading...</div>;
 
   const columns = [
     {
@@ -53,7 +77,7 @@ const RoadmapsListPage = () => {
     <div className="space-y-6">
       <DataTable
         title="إدارة المسارات"
-        data={data}
+        data={roadmaps}
         columns={columns}
         onDelete={handleDelete}
         onEdit="/admin/roadmaps"

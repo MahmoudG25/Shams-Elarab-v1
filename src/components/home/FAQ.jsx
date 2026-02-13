@@ -1,8 +1,5 @@
 import React, { useState } from 'react';
-import homepageData from '../../data/homepage.json';
-
-const FAQ = () => {
-  const data = homepageData.faq;
+const FAQ = ({ data }) => {
   const [openIndex, setOpenIndex] = useState(null);
 
   const toggleAccordion = (index) => {

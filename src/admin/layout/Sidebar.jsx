@@ -6,18 +6,36 @@ import {
   MdMap,
   MdImage,
   MdSettings,
-  MdLogout
+  MdLogout,
+  MdPeople
 } from 'react-icons/md';
 import clsx from 'clsx';
+import { signOut } from 'firebase/auth';
+import { auth } from '../../firebase/config';
+import { useDispatch } from 'react-redux';
+import { addToast } from '../../store/slices/uiSlice';
 
 const Sidebar = ({ isOpen, onClose }) => {
   const links = [
     { label: 'الرئيسية', path: '/admin', icon: MdDashboard, end: true },
+    { label: 'تحرير الصفحة', path: '/admin/home', icon: MdSettings },
     { label: 'الدورات', path: '/admin/courses', icon: MdClass },
     { label: 'المسارات', path: '/admin/roadmaps', icon: MdMap },
+    { label: 'الطلبات', path: '/admin/orders', icon: MdPeople }, // Using MdPeople as icon for orders/customers
     // { label: 'الوسائط', path: '/admin/media', icon: MdImage }, // Phase 2 extension
     // { label: 'الإعدادات', path: '/admin/settings', icon: MdSettings },
   ];
+
+  const dispatch = useDispatch();
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      dispatch(addToast({ type: 'success', message: 'تم تسجيل الخروج' }));
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
+  };
 
   return (
     <>
@@ -62,7 +80,10 @@ const Sidebar = ({ isOpen, onClose }) => {
         </nav>
 
         <div className="absolute bottom-4 left-0 right-0 p-4">
-          <button className="flex items-center gap-3 w-full px-4 py-3 text-red-500 hover:bg-red-50 rounded-lg transition-colors">
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-3 w-full px-4 py-3 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+          >
             <MdLogout size={22} />
             <span>تسجيل خروج</span>
           </button>

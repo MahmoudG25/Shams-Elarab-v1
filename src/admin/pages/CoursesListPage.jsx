@@ -1,12 +1,31 @@
-import React from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import { deleteCourse } from '../../store/slices/dbSlice';
+import React, { useState, useEffect } from 'react';
+import { useDispatch } from 'react-redux';
 import { openModal, addToast } from '../../store/slices/uiSlice';
 import DataTable from '../components/DataTable';
+import { courseService } from '../../services/courseService';
 
 const CoursesListPage = () => {
-  const { courses, instructors } = useSelector(state => state.db);
+  const [courses, setCourses] = useState([]);
+  const [loading, setLoading] = useState(true);
   const dispatch = useDispatch();
+
+  const fetchCourses = async () => {
+    setLoading(true);
+    try {
+      // Fetch all courses (both published and unpublished for admin)
+      const data = await courseService.getAllCourses(false);
+      setCourses(data);
+    } catch (error) {
+      console.error("Failed to fetch courses:", error);
+      dispatch(addToast({ type: 'error', message: 'فشل تحميل الدورات' }));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchCourses();
+  }, []);
 
   const handleDelete = (course) => {
     dispatch(openModal({
@@ -16,23 +35,26 @@ const CoursesListPage = () => {
         message: `هل أنت متأكد من حذف دورة "${course.title}"؟ لا يمكن التراجع عن هذا الإجراء.`,
         confirmText: 'حذف',
         isDestructive: true,
-        onConfirm: () => {
-          dispatch(deleteCourse(course.id));
-          dispatch(addToast({ type: 'success', message: 'تم حذف الدورة بنجاح' }));
+        onConfirm: async () => {
+          try {
+            await courseService.deleteCourse(course.id);
+            dispatch(addToast({ type: 'success', message: 'تم حذف الدورة بنجاح' }));
+            fetchCourses(); // Refresh list
+          } catch (error) {
+            console.error("Delete failed:", error);
+            dispatch(addToast({ type: 'error', message: 'فشل حذف الدورة' }));
+          }
         }
       }
     }));
   };
 
-  const data = courses.allIds.map(id => {
-    const course = courses.byId[id];
-    // Resolve instructor name
-    const instructor = instructors.byId[course.instructorId] || course.instructor || {};
-    return {
-      ...course,
-      instructorName: instructor.name || 'Unknown'
-    };
-  });
+  if (loading) return <div>Loading...</div>;
+
+  const data = courses.map(course => ({
+    ...course,
+    instructorName: course.instructor?.name || 'Unknown'
+  }));
 
   const columns = [
     {

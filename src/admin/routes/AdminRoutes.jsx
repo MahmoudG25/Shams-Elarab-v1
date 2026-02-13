@@ -7,11 +7,25 @@ import CourseEditPage from '../pages/CourseEditPage';
 import RoadmapsListPage from '../pages/RoadmapsListPage';
 import RoadmapEditPage from '../pages/RoadmapEditPage';
 
+import HomeEditPage from '../pages/HomeEditPage';
+import OrdersListPage from '../pages/OrdersListPage';
+
+import LoginPage from '../pages/LoginPage';
+import RequireAuth from '../components/RequireAuth';
+
 const AdminRoutes = () => {
   return (
     <Routes>
-      <Route path="/" element={<AdminLayout />}>
+      <Route path="login" element={<LoginPage />} />
+
+      <Route path="/" element={
+        <RequireAuth>
+          <AdminLayout />
+        </RequireAuth>
+      }>
         <Route index element={<DashboardPage />} />
+        <Route path="home" element={<HomeEditPage />} />
+        <Route path="orders" element={<OrdersListPage />} />
 
         <Route path="courses" element={<CoursesListPage />} />
         <Route path="courses/new" element={<CourseEditPage />} />

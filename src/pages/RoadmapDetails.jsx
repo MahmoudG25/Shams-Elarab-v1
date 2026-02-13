@@ -1,12 +1,31 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import roadmaps from '../data/roadmaps.json';
 import RoadmapHero from '../components/paths/RoadmapHero';
 import RoadmapModules from '../components/paths/RoadmapModules';
+import { roadmapService } from '../services/roadmapService';
 
 const RoadmapDetails = () => {
   const { id } = useParams();
-  const roadmap = roadmaps.find(item => item.id === id);
+  const [roadmap, setRoadmap] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchRoadmap = async () => {
+      try {
+        const data = await roadmapService.getRoadmapById(id);
+        setRoadmap(data);
+      } catch (error) {
+        console.error("Error fetching roadmap:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchRoadmap();
+  }, [id]);
+
+  if (loading) {
+    return <div className="min-h-screen pt-24 pb-20 flex justify-center items-center">Loading...</div>;
+  }
 
   if (!roadmap) {
     return (

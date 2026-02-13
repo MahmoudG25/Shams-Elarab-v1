@@ -1,16 +1,32 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import PathsHeader from '../components/paths/PathsHeader';
 import PathCard from '../components/paths/PathCard';
-import roadmaps from '../data/roadmaps.json';
+import { roadmapService } from '../services/roadmapService';
 
 const PathsPage = () => {
-  const [searchQuery, setSearchQuery] = React.useState('');
-  const [filters, setFilters] = React.useState({
+  const [roadmaps, setRoadmaps] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filters, setFilters] = useState({
     category: null,
     level: null,
     sort: null, // 'duration' or 'price'
     order: null // 'asc' or 'desc'
   });
+
+  useEffect(() => {
+    const fetchRoadmaps = async () => {
+      try {
+        const data = await roadmapService.getAllRoadmaps();
+        setRoadmaps(data);
+      } catch (error) {
+        console.error("Error fetching roadmaps:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchRoadmaps();
+  }, []);
 
   const filteredRoadmaps = React.useMemo(() => {
     let result = [...roadmaps];
@@ -58,7 +74,7 @@ const PathsPage = () => {
     }
 
     return result;
-  }, [searchQuery, filters]);
+  }, [searchQuery, filters, roadmaps]);
 
   const clearFilters = () => {
     setSearchQuery('');
@@ -77,7 +93,9 @@ const PathsPage = () => {
         />
 
         <div className="roadmap-list space-y-12">
-          {filteredRoadmaps.length > 0 ? (
+          {loading ? (
+            <div className="text-center py-20">Loading...</div>
+          ) : filteredRoadmaps.length > 0 ? (
             filteredRoadmaps.map((roadmap) => (
               <PathCard key={roadmap.id} roadmap={roadmap} />
             ))

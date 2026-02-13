@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useSelector, useDispatch } from 'react-redux';
-import { addRoadmap, updateRoadmap } from '../../store/slices/dbSlice';
+import { useDispatch } from 'react-redux';
 import { addToast } from '../../store/slices/uiSlice';
 import DragDropList from '../components/DragDropList';
 import { MdSave, MdArrowBack, MdAdd } from 'react-icons/md';
 import { v4 as uuidv4 } from 'uuid';
+import { roadmapService } from '../../services/roadmapService';
+import { courseService } from '../../services/courseService';
 
 const RoadmapEditPage = () => {
   const { id } = useParams();
@@ -13,9 +14,8 @@ const RoadmapEditPage = () => {
   const dispatch = useDispatch();
   const isEditMode = !!id;
 
-  const { roadmaps, courses } = useSelector(state => state.db);
-  const roadmapToEdit = isEditMode ? roadmaps.byId[id] : null;
-
+  const [loading, setLoading] = useState(false);
+  const [courses, setCourses] = useState([]);
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -27,10 +27,31 @@ const RoadmapEditPage = () => {
   const [selectedCourseId, setSelectedCourseId] = useState('');
 
   useEffect(() => {
-    if (isEditMode && roadmapToEdit) {
-      setFormData(roadmapToEdit);
-    }
-  }, [isEditMode, roadmapToEdit]);
+    const initData = async () => {
+      try {
+        setLoading(true);
+        // Load courses for the dropdown
+        const coursesData = await courseService.getAllCourses();
+        setCourses(coursesData);
+
+        if (isEditMode) {
+          const roadmap = await roadmapService.getRoadmapById(id);
+          if (roadmap) {
+            setFormData(roadmap);
+          } else {
+            dispatch(addToast({ type: 'error', message: 'لم يتم العثور على المسار' }));
+            navigate('/admin/roadmaps');
+          }
+        }
+      } catch (error) {
+        console.error("Error loading data:", error);
+        dispatch(addToast({ type: 'error', message: 'فشل تحميل البيانات' }));
+      } finally {
+        setLoading(false);
+      }
+    };
+    initData();
+  }, [isEditMode, id, navigate, dispatch]);
 
   const handleChange = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -40,7 +61,7 @@ const RoadmapEditPage = () => {
   const addModule = () => {
     if (!selectedCourseId) return;
 
-    const course = courses.byId[selectedCourseId];
+    const course = courses.find(c => c.id === selectedCourseId);
     if (!course) return;
 
     const newModule = {
@@ -78,19 +99,29 @@ const RoadmapEditPage = () => {
   };
 
   // --- Save ---
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.title) return alert('العنوان مطلوب');
 
-    if (isEditMode) {
-      dispatch(updateRoadmap({ id, updates: formData }));
-      dispatch(addToast({ type: 'success', message: 'تم تحديث المسار بنجاح' }));
-    } else {
-      dispatch(addRoadmap(formData));
-      dispatch(addToast({ type: 'success', message: 'تم إنشاء المسار بنجاح' }));
+    setLoading(true);
+    try {
+      if (isEditMode) {
+        await roadmapService.updateRoadmap(id, formData);
+        dispatch(addToast({ type: 'success', message: 'تم تحديث المسار بنجاح' }));
+      } else {
+        await roadmapService.createRoadmap(formData);
+        dispatch(addToast({ type: 'success', message: 'تم إنشاء المسار بنجاح' }));
+      }
+      navigate('/admin/roadmaps');
+    } catch (error) {
+      console.error("Error saving roadmap:", error);
+      dispatch(addToast({ type: 'error', message: 'فشل حفظ التغييرات' }));
+    } finally {
+      setLoading(false);
     }
-    navigate('/admin/roadmaps');
   };
+
+  if (loading && isEditMode && !formData.id) return <div>Loading...</div>;
 
   return (
     <form onSubmit={handleSubmit} className="space-y-8 pb-20">
@@ -105,10 +136,11 @@ const RoadmapEditPage = () => {
         </div>
         <button
           type="submit"
-          className="flex items-center gap-2 bg-primary text-heading-brown font-bold px-6 py-3 rounded-xl hover:bg-gold-cta shadow-lg shadow-primary/20 transition-all"
+          disabled={loading}
+          className="flex items-center gap-2 bg-primary text-heading-brown font-bold px-6 py-3 rounded-xl hover:bg-gold-cta shadow-lg shadow-primary/20 transition-all disabled:opacity-50"
         >
           <MdSave size={20} />
-          <span>حفظ التغييرات</span>
+          <span>{loading ? 'جاري الحفظ...' : 'حفظ التغييرات'}</span>
         </button>
       </div>
 
@@ -153,8 +185,8 @@ const RoadmapEditPage = () => {
                   className="w-full p-3 rounded-lg border border-gray-200 focus:border-primary focus:outline-none"
                 >
                   <option value="">اختر دورة...</option>
-                  {courses.allIds.map(cId => (
-                    <option key={cId} value={cId}>{courses.byId[cId].title}</option>
+                  {courses.map(c => (
+                    <option key={c.id} value={c.id}>{c.title}</option>
                   ))}
                 </select>
               </div>

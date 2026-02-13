@@ -1,26 +1,3 @@
-import coursesData from '../data/courses.json';
-import roadmapsData from '../data/roadmaps.json';
-
-/**
- * Fetch product by ID and type
- * @param {string} id - Product ID (slug)
- * @param {string} type - 'course' or 'track'
- * @returns {object|null} Product object
- */
-export const getProduct = (id, type) => {
-  if (!id || !type) return null;
-
-  if (type === 'course') {
-    return coursesData.find(c => c.id === id) || null;
-  }
-
-  if (type === 'track') {
-    return roadmapsData.find(r => r.id === id) || null;
-  }
-
-  return null;
-};
-
 /**
  * Calculate order totals
  * @param {object} product 

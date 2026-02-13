@@ -9,10 +9,23 @@ import CourseDetails from '../pages/CourseDetails';
 import PaymentSubmission from '../pages/Checkout/PaymentSubmission';
 import OrderUnderReview from '../pages/Checkout/OrderUnderReview';
 import OrderSuccess from '../pages/Checkout/OrderSuccess';
-import data from '../data/homepage.json';
+import { pageService } from '../services/pageService';
 
 const PublicRoutes = () => {
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [pageData, setPageData] = useState(null);
+
+  useEffect(() => {
+    const fetchPageData = async () => {
+      try {
+        const data = await pageService.getPageData('home');
+        setPageData(data);
+      } catch (error) {
+        console.error("Failed to fetch page data:", error);
+      }
+    };
+    fetchPageData();
+  }, []);
 
   useEffect(() => {
     if (isDarkMode) {
@@ -26,10 +39,15 @@ const PublicRoutes = () => {
     setIsDarkMode(prev => !prev);
   };
 
+  if (!pageData) {
+    // Optional: Return a loading spinner here
+    return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+  }
+
   return (
     <div dir="rtl" className="bg-surface-white dark:bg-background-dark font-display text-body-text dark:text-gray-100 antialiased selection:bg-primary/30 min-h-screen flex flex-col transition-colors duration-300">
       <Navbar
-        data={data.navbar}
+        data={pageData.navbar}
         isDarkMode={isDarkMode}
         toggleDarkMode={toggleDarkMode}
       />
@@ -46,7 +64,7 @@ const PublicRoutes = () => {
         </Routes>
       </div>
 
-      <Footer data={data.footer} />
+      <Footer data={pageData.footer} />
     </div>
   );
 };

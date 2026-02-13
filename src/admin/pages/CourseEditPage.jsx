@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useSelector, useDispatch } from 'react-redux';
-import { addCourse, updateCourse } from '../../store/slices/dbSlice';
+import { useDispatch } from 'react-redux';
 import { addToast } from '../../store/slices/uiSlice';
 import MediaUploader from '../components/MediaUploader';
 import { MdSave, MdArrowBack, MdAdd, MdDelete, MdDragIndicator } from 'react-icons/md';
 import { v4 as uuidv4 } from 'uuid';
+import { courseService } from '../../services/courseService';
 
 const CourseEditPage = () => {
   const { id } = useParams();
@@ -13,9 +13,7 @@ const CourseEditPage = () => {
   const dispatch = useDispatch();
   const isEditMode = !!id;
 
-  const { courses } = useSelector(state => state.db);
-  const courseToEdit = isEditMode ? courses.byId[id] : null;
-
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
     short_title: '',
@@ -28,10 +26,27 @@ const CourseEditPage = () => {
   });
 
   useEffect(() => {
-    if (isEditMode && courseToEdit) {
-      setFormData(courseToEdit);
+    if (isEditMode) {
+      const fetchCourse = async () => {
+        setLoading(true);
+        try {
+          const course = await courseService.getCourseById(id);
+          if (course) {
+            setFormData(course);
+          } else {
+            dispatch(addToast({ type: 'error', message: 'لم يتم العثور على الدورة' }));
+            navigate('/admin/courses');
+          }
+        } catch (error) {
+          console.error("Error fetching course:", error);
+          dispatch(addToast({ type: 'error', message: 'فشل تحميل البيانات' }));
+        } finally {
+          setLoading(false);
+        }
+      };
+      fetchCourse();
     }
-  }, [isEditMode, courseToEdit]);
+  }, [isEditMode, id, navigate, dispatch]);
 
   const handleChange = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -112,19 +127,29 @@ const CourseEditPage = () => {
   };
 
   // --- Save ---
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.title) return alert('العنوان مطلوب');
 
-    if (isEditMode) {
-      dispatch(updateCourse({ id, updates: formData }));
-      dispatch(addToast({ type: 'success', message: 'تم تحديث الدورة بنجاح' }));
-    } else {
-      dispatch(addCourse(formData));
-      dispatch(addToast({ type: 'success', message: 'تم إنشاء الدورة بنجاح' }));
+    setLoading(true);
+    try {
+      if (isEditMode) {
+        await courseService.updateCourse(id, formData);
+        dispatch(addToast({ type: 'success', message: 'تم تحديث الدورة بنجاح' }));
+      } else {
+        await courseService.createCourse(formData);
+        dispatch(addToast({ type: 'success', message: 'تم إنشاء الدورة بنجاح' }));
+      }
+      navigate('/admin/courses');
+    } catch (error) {
+      console.error("Error saving course:", error);
+      dispatch(addToast({ type: 'error', message: 'فشل حفظ التغييرات' }));
+    } finally {
+      setLoading(false);
     }
-    navigate('/admin/courses');
   };
+
+  if (loading && isEditMode && !formData.id) return <div>Loading...</div>; // Initial load
 
   return (
     <form onSubmit={handleSubmit} className="space-y-8 pb-20">
@@ -140,10 +165,11 @@ const CourseEditPage = () => {
         </div>
         <button
           type="submit"
-          className="flex items-center gap-2 bg-primary text-heading-brown font-bold px-6 py-3 rounded-xl hover:bg-gold-cta shadow-lg shadow-primary/20 transition-all"
+          disabled={loading}
+          className="flex items-center gap-2 bg-primary text-heading-brown font-bold px-6 py-3 rounded-xl hover:bg-gold-cta shadow-lg shadow-primary/20 transition-all disabled:opacity-50"
         >
           <MdSave size={20} />
-          <span>حفظ التغييرات</span>
+          <span>{loading ? 'جاري الحفظ...' : 'حفظ التغييرات'}</span>
         </button>
       </div>
 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import {
   FaChevronLeft,
@@ -22,19 +22,51 @@ import {
   FaBookOpen,
   FaArrowLeft // For RTL
 } from 'react-icons/fa';
-import courses from '../data/courses.json';
-import roadmaps from '../data/roadmaps.json';
+import { courseService } from '../services/courseService';
+import { roadmapService } from '../services/roadmapService';
 
 const CourseDetails = () => {
   const { courseId } = useParams();
+  const [course, setCourse] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [relatedRoadmaps, setRelatedRoadmaps] = useState([]);
+
   const [expandedSectionId, setExpandedSectionId] = useState('intro'); // Default expanded, checking first section id
   const [visibleSectionsCount, setVisibleSectionsCount] = useState(5);
+
+  useEffect(() => {
+    const fetchCourseData = async () => {
+      setLoading(true);
+      try {
+        // Fetch Course
+        const fetchedCourse = await courseService.getCourseById(courseId);
+        setCourse(fetchedCourse);
+
+        if (fetchedCourse) {
+          // Fetch Roadmaps to find relations
+          const allRoadmaps = await roadmapService.getAllRoadmaps();
+          const related = allRoadmaps.filter(r =>
+            (r.modules || r.courses || []).some(c => c.courseId === fetchedCourse.id)
+          );
+          setRelatedRoadmaps(related);
+        }
+      } catch (error) {
+        console.error("Error fetching course details:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCourseData();
+  }, [courseId]);
 
   const handleShowMoreSections = () => {
     setVisibleSectionsCount((prev) => prev + 5);
   };
 
-  const course = courses.find(c => c.id === courseId);
+  if (loading) {
+    return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+  }
 
   if (!course) {
     return (
@@ -49,11 +81,6 @@ const CourseDetails = () => {
       </div>
     );
   }
-
-  // New Logic: Find all roadmaps that include this course
-  const relatedRoadmaps = roadmaps.filter(r =>
-    (r.modules || r.courses || []).some(c => c.courseId === course.id)
-  );
 
   const toggleSection = (id) => {
     setExpandedSectionId(expandedSectionId === id ? null : id);

@@ -3,7 +3,8 @@ import { useLocation, Link } from 'react-router-dom';
 import { FaCheck } from 'react-icons/fa6';
 import ProductSummaryCard from '../../components/checkout/ProductSummaryCard';
 import CloudAccessCard from '../../components/checkout/CloudAccessCard';
-import { getProduct } from '../../utils/checkoutUtils';
+import { courseService } from '../../services/courseService';
+import { roadmapService } from '../../services/roadmapService';
 
 const OrderSuccess = () => {
   const location = useLocation();
@@ -11,20 +12,32 @@ const OrderSuccess = () => {
   const [product, setProduct] = useState(null);
 
   useEffect(() => {
-    // Try to get order from state, otherwise fallback to local storage (latest order)
-    let foundOrder = location.state?.order;
-    if (!foundOrder) {
-      const orders = JSON.parse(localStorage.getItem('shams_orders') || '[]');
-      if (orders.length > 0) {
-        foundOrder = orders[orders.length - 1];
+    const fetchOrderAndProduct = async () => {
+      // Try to get order from state, otherwise fallback to local storage (latest order)
+      let foundOrder = location.state?.order;
+      if (!foundOrder) {
+        const orders = JSON.parse(localStorage.getItem('shams_orders') || '[]');
+        if (orders.length > 0) {
+          foundOrder = orders[orders.length - 1];
+        }
       }
-    }
-    setOrder(foundOrder);
+      setOrder(foundOrder);
 
-    if (foundOrder) {
-      const fetchedProduct = getProduct(foundOrder.productId, foundOrder.productType);
-      setProduct(fetchedProduct);
-    }
+      if (foundOrder) {
+        try {
+          let fetchedProduct = null;
+          if (foundOrder.productType === 'course') {
+            fetchedProduct = await courseService.getCourseById(foundOrder.productId);
+          } else if (foundOrder.productType === 'track') {
+            fetchedProduct = await roadmapService.getRoadmapById(foundOrder.productId);
+          }
+          setProduct(fetchedProduct);
+        } catch (error) {
+          console.error("Error fetching product details:", error);
+        }
+      }
+    };
+    fetchOrderAndProduct();
   }, [location.state]);
 
   if (!order || !product) {

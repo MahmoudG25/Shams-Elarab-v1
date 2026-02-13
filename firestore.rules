@@ -1,0 +1,35 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper function to check if user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Courses: Public read, Admin write
+    match /courses/{courseId} {
+      allow read: if true;
+      allow write: if isAuthenticated();
+    }
+
+    // Roadmaps: Public read, Admin write
+    match /roadmaps/{roadmapId} {
+      allow read: if true;
+      allow write: if isAuthenticated();
+    }
+
+    // Pages (Home, etc): Public read, Admin write
+    match /pages/{pageId} {
+      allow read: if true;
+      allow write: if isAuthenticated();
+    }
+
+    // Orders: Create public (for checkout), Read/Write Admin only
+    // Note: in a real app, users should only read their own orders.
+    // Since we don't have public user auth yet, we allow create public.
+    match /orders/{orderId} {
+      allow create: if true;
+      allow read, update, delete: if isAuthenticated();
+    }
+  }
+}

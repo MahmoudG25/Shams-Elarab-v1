@@ -1,14 +1,11 @@
 import React from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay, EffectFade } from 'swiper/modules';
-import homepageData from '../../data/homepage.json';
-
 // Import Swiper styles
 import 'swiper/css';
 import 'swiper/css/effect-fade';
 
-const CTA = () => {
-  const data = homepageData.ctaFinal;
+const CTA = ({ data }) => {
 
   return (
     <section className="relative w-full h-[60vh] md:h-[75vh] overflow-hidden bg-black" id="cta">

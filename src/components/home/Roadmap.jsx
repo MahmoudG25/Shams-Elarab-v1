@@ -1,8 +1,5 @@
 import React from 'react';
-import homepageData from '../../data/homepage.json';
-
-const Roadmap = () => {
-  const data = homepageData.homeRoadmap;
+const Roadmap = ({ data }) => {
   const steps = data.steps;
   const finalStep = steps[steps.length - 1];
   const timelineSteps = steps.slice(0, steps.length - 1); // All except last
