@@ -1,0 +1,73 @@
+{
+  "title": "اختر هدفك… ونحن نرسم لك الطريق",
+  "subtitle": "مسارات واضحة تقودك من البداية حتى أول نتيجة حقيقية",
+  "tabs": [
+    "الكل",
+    "وظيفة تقنية",
+    "دخل بالدولار",
+    "عمل حر",
+    "ذكاء اصطناعي",
+    "تطوير اللغة"
+  ],
+  "items": [
+    {
+      "id": 1,
+      "category": "وظيفة تقنية",
+      "title": "Front-End Developer",
+      "from": "من الصفر",
+      "to": "وظيفة بوقت قياسي",
+      "tag": "الأعلى طلباً",
+      "image": "https://lh3.googleusercontent.com/aida-public/AB6AXuBTKmWhez9b101sSoIDiSGoQ4OzhrimMSQtb_PJbzgpnGBdLWWqm8wp-_e7Ed9gB1UUPm-GsLQf_LqdWUmi_-pVNfvqpVdU9KRqWnUUjcAoG3u_V1L6_C6nNoTpd2GcbjJcLj5DoH5Rfn4lvx2DlM1j9SO8GrZNcRHlDdGQ1VtxZla5RX1UDtSe9FLQdpo6lk8Z6Xpexf8OvSvTTI_a70b_dfC2eWZa5fCuvbFMiPfAXZY8jOmUeunjDuISEC0SdY_nJu91gDw1Cpo"
+    },
+    {
+      "id": 2,
+      "category": "تطوير اللغة",
+      "title": "English for Tech",
+      "from": "لغة ركيكة",
+      "to": "مقابلات عمل عالمية",
+      "tag": "أساسي",
+      "image": "https://lh3.googleusercontent.com/aida-public/AB6AXuDVCpBzq7nKMMn0310H0J94wEg1ejsYH1oWYQ5hK8lBTiFk8BgUg9ySLy0bt4GU2nHJDNO7iq4MZJbWDChnE8oLOERo77ICGadg3k1k33Ag6eSiNh9ffy5XynsGN-FvW4ORj0-d54O6zI_bDjBjD9mcRANcnN6gcO0b8yt4I5K7-FkKVAJzgUZK0zR6aQ4q-Z3mrxPETkz07mVXTP3qrtxdcXe41OkjJpnQk_A_qqHka110iFcA_SiOaDGuvWw90IGdJ-NOR6U3Bbw"
+    },
+    {
+      "id": 3,
+      "category": "عمل حر",
+      "title": "Freelancing Mastery",
+      "from": "مهارة بدون دخل",
+      "to": "أول عميل ($500+)",
+      "tag": "دخل إضافي",
+      "image": "https://lh3.googleusercontent.com/aida-public/AB6AXuBp5ijlG7F4mZjeqlQBVjebdRVtZdNg03WEHAIhydMj0AuBNhN-xbUVRF0O8TqtaNsCPMthz_IjTxfuIAt7VZcwCSkEJWnSeuABc2TUUJi1Fd8XPR-gXd8dDlStG-B_igRJbpxMLYVWaZVgQRxfghlI9RyAs1bOl4D1eZNPZ8o7dYU7bLIw89heumoNtrRguKtymBW2vWBV56YUsXs4CYK0mlMKi0okHNssPDyjaImQRSwE8bEWZMJbaEY02l_gzZ0Bgi1BdYARpjM"
+    },
+    {
+      "id": 4,
+      "category": "ذكاء اصطناعي",
+      "title": "AI Engineering",
+      "from": "مستخدم عادي",
+      "to": "مهندس أوامر (Prompt Eng)",
+      "tag": "المستقبل",
+      "icon": "smart_toy",
+      "image": "https://lh3.googleusercontent.com/aida-public/AB6AXuDQqAouu4wQ7vG1j4iY4y2hYgW5pPqW6tZ8x9sV6rN1nJ3kL5oB8dE7mX9c2zR4vY1uH6aQ3sF5iG8jK0lM9oN2pB7qR4tW3uV1xL6yJ5nI8kO9mP2qA4rB3sC5tU7vW8xM6yH3nJ9kL0oP2qA4rB3sC5tU7vW8x"
+    },
+    {
+      "id": 5,
+      "category": "دخل بالدولار",
+      "title": "Financial Freedom",
+      "from": "راتب محلي",
+      "to": "أول $1000 أونلاين",
+      "tag": "حرية مالية",
+      "icon": "monetization_on",
+      "image": "https://lh3.googleusercontent.com/aida-public/AB6AXuERsTvuu2yP6wH0kM4jL3nO8pQ7qR5sW2vX1yZ6nI5jK0lM9oN2pB7qR4tW3uV1xL6yJ5nI8kO9mP2qA4rB3sC5tU7vW8xM6yH3nJ9kL0oP2qA4rB3s"
+    },
+    {
+      "id": 6,
+      "category": "وظيفة تقنية",
+      "title": "Backend (Python)",
+      "from": "مبتدئ",
+      "to": "مطور أنظمة خلفية",
+      "tag": "قوي جداً",
+      "icon": "terminal",
+      "image": "https://lh3.googleusercontent.com/aida-public/AB6AXuFSxUwvvs3zR7xI1lN5kO9pQ8rS6tW3uV2yM7zJ6kL0oP1qB2rC3sT4uV5xN6yH7nJ8kL9oP0qA1rB2sC3tU4vW5xM6yH7nJ8kL9oP0qA1rB2sC3tU4vW5x"
+    }
+  ],
+  "cta_text": "شاهد الخطة كاملة خلال ٣ دقائق",
+  "cta_sub": "خطة واضحة – بدون تشتت – نتيجة قابلة للقياس"
+}

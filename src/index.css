@@ -1,0 +1,82 @@
+@import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #ecb613;
+  --color-gold-cta: #E0B23F;
+  --color-heading-brown: #694310;
+  --color-body-text: #2B2B2B;
+  --color-background-alt: #F7F8FA;
+  --color-border-light: #E8EAED;
+  --color-surface-white: #FFFFFF;
+  --color-warm-light: #FDFBF7;
+  --color-shadow-soft: #00000008;
+
+  --font-display: "Tajawal", sans-serif;
+  --font-body: "Tajawal", sans-serif;
+
+  --radius-lg: 1rem;
+  --radius-card: 18px;
+  --radius-2xl: 1.5rem;
+  --radius-3xl: 2rem;
+
+  --shadow-soft: 0 4px 20px 0 rgba(0, 0, 0, 0.05);
+  --shadow-hover: 0 10px 25px 0 rgba(0, 0, 0, 0.08);
+
+  --animate-pulse: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+
+  /* Custom Animations for Slider */
+  --animate-scroll-up: scrollUp 35s linear infinite;
+  --animate-scroll-down: scrollDown 35s linear infinite;
+  --animate-marquee: marquee 30s linear infinite;
+
+  @keyframes scrollUp {
+    0% {
+      transform: translateY(0);
+    }
+
+    100% {
+      transform: translateY(-50%);
+    }
+  }
+
+  @keyframes scrollDown {
+    0% {
+      transform: translateY(-50%);
+    }
+
+    100% {
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes marquee {
+    0% {
+      transform: translateX(0);
+    }
+
+    100% {
+      transform: translateX(-50%);
+    }
+  }
+}
+
+@layer utilities {
+  .hide-scroll::-webkit-scrollbar {
+    display: none;
+  }
+
+  .hide-scroll {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .pause-on-hover:hover {
+    animation-play-state: paused;
+  }
+}
+
+/* Swiper Linear Transition Override for Marquee */
+.swiper-wrapper {
+  transition-timing-function: linear !important;
+}

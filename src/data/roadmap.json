@@ -1,0 +1,45 @@
+{
+  "title": "مكسب أول 1000 دولار ليس حلمًا… بل محطة في رحلتك.",
+  "subtitle": "رحلتك معنا خلال ٦ أشهر واضحة خطوة بخطوة",
+  "steps": [
+    {
+      "id": 1,
+      "month": "الشهر الأول",
+      "title": "Front-End Basics + English for Tech",
+      "description": "بداية صحيحة بدون تشتت"
+    },
+    {
+      "id": 2,
+      "month": "الشهر الثاني",
+      "title": "JavaScript + Portfolio",
+      "description": "أول مشروع حقيقي"
+    },
+    {
+      "id": 3,
+      "month": "الشهر الثالث",
+      "title": "Freelancing + Upwork Setup",
+      "description": "جاهز لدخول سوق الدولار"
+    },
+    {
+      "id": 4,
+      "month": "الشهر الرابع",
+      "title": "Client Projects + Pricing",
+      "description": "أول عميل → أول $100"
+    },
+    {
+      "id": 5,
+      "month": "الشهر الخامس",
+      "title": "Prompt Engineering + AI Tools",
+      "description": "ميزة تنافسية عالمية"
+    },
+    {
+      "id": 6,
+      "month": "الشهر السادس",
+      "title": "Financial Freedom Framework",
+      "description": "أول 1000 دولار… بداية الاستقلال",
+      "highlight": true
+    }
+  ],
+  "cta": "ابدأ مسار الربح بالدولار الآن",
+  "cta_sub": "خطة واضحة – مهارات قابلة للبيع – دخل قابل للقياس"
+}

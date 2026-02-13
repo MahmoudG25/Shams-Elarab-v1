@@ -1,0 +1,58 @@
+{
+  "title": "ابدأ بخطة تناسبك",
+  "subtitle": "اختر المسار الذي يناسب مرحلتك الحالية… وابدأ رحلتك بثقة",
+  "plans": [
+    {
+      "id": "starter",
+      "badge": "للبداية",
+      "title": "Starter",
+      "price": "$9",
+      "period": "/شهر",
+      "subtitle": "تجربة مسار واحد",
+      "description": "مثالية لاكتشاف المسار المناسب لك",
+      "features": [
+        "الوصول لمسار واحد",
+        "محتوى مترجم",
+        "دعم مجتمعي"
+      ],
+      "image": "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=800&auto=format&fit=crop",
+      "highlight": false
+    },
+    {
+      "id": "pro",
+      "badge": "الأكثر اختيارًا",
+      "title": "Pro",
+      "price": "$19",
+      "period": "/شهر",
+      "subtitle": "كل المسارات + ترجمة كاملة",
+      "description": "الخيار الأفضل للتعلم المستمر بجدية",
+      "features": [
+        "الوصول لجميع المسارات",
+        "ترجمة احترافية",
+        "مشاريع تطبيقية",
+        "تحديثات مستمرة"
+      ],
+      "image": "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=800&auto=format&fit=crop",
+      "highlight": true
+    },
+    {
+      "id": "freedom",
+      "badge": "للتحول الكامل",
+      "title": "Freedom",
+      "price": "$94",
+      "period": "/شهر",
+      "subtitle": "تعلم + تطبيق + توجيه",
+      "description": "من التعلم… إلى أول دخل بالدولار",
+      "features": [
+        "كل مميزات Pro",
+        "مراجعة مشاريع",
+        "جلسات توجيه مباشر",
+        "إشراف حتى أول دخل"
+      ],
+      "image": "https://images.unsplash.com/photo-1552664730-d307ca884978?q=80&w=800&auto=format&fit=crop",
+      "highlight": false
+    }
+  ],
+  "cta": "ابدأ الآن… أول أسبوع مجاني",
+  "cta_sub": "إلغاء في أي وقت – بدون التزام"
+}
