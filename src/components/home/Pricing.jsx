@@ -1,8 +1,8 @@
 import React from 'react';
-import pricingData from '../../data/pricing.json';
+import homepageData from '../../data/homepage.json';
 
 const Pricing = () => {
-  const data = pricingData;
+  const data = homepageData.pricing;
 
   return (
     <section className="py-20 bg-surface-white relative overflow-hidden" id="pricing">

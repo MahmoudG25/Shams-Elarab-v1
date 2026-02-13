@@ -1,8 +1,8 @@
 import React from 'react';
-import testimonialsData from '../../data/testimonials.json';
+import homepageData from '../../data/homepage.json';
 
 const Testimonials = () => {
-  const data = testimonialsData;
+  const data = homepageData.testimonials;
 
   return (
     <section className="py-20 bg-gradient-to-br from-surface-white to-background-alt relative overflow-hidden" id="testimonials">

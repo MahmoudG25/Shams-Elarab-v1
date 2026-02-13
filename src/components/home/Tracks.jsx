@@ -1,14 +1,14 @@
 import React, { useState, useRef } from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Autoplay } from 'swiper/modules';
-import tracksData from '../../data/tracks.json';
+import homepageData from '../../data/homepage.json';
 
 // Import Swiper styles
 import 'swiper/css';
 import 'swiper/css/navigation';
 
 const Tracks = () => {
-  const data = tracksData;
+  const data = homepageData.tracks;
   const [activeTab, setActiveTab] = useState(data.tabs[0]);
   const swiperRef = useRef(null);
 

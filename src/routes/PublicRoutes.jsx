@@ -9,7 +9,7 @@ import CourseDetails from '../pages/CourseDetails';
 import PaymentSubmission from '../pages/Checkout/PaymentSubmission';
 import OrderUnderReview from '../pages/Checkout/OrderUnderReview';
 import OrderSuccess from '../pages/Checkout/OrderSuccess';
-import data from '../data/landing-page.json';
+import data from '../data/homepage.json';
 
 const PublicRoutes = () => {
   const [isDarkMode, setIsDarkMode] = useState(false);

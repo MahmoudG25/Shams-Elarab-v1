@@ -10,7 +10,7 @@ import CTA from '../components/home/CTA';
 import Mission from '../components/home/Mission';
 import FAQ from '../components/home/FAQ';
 
-import data from '../data/landing-page.json';
+import data from '../data/homepage.json';
 
 const Home = () => {
   return (
