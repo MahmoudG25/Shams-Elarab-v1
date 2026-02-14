@@ -2,9 +2,17 @@ import React, { useState } from 'react';
 const FAQ = ({ data }) => {
   const [openIndex, setOpenIndex] = useState(null);
 
+  // Data is now an array of questions { id, question, answer }
+  // OR the old object { title, subtitle, questions: [] }
+  const questions = Array.isArray(data) ? data : (data?.questions || []);
+  const title = (Array.isArray(data) || !data?.title) ? 'الأسئلة الشائعة' : data.title;
+  const subtitle = (Array.isArray(data) || !data?.subtitle) ? 'إجابات على كل ما يدور في ذهنك' : data.subtitle;
+
   const toggleAccordion = (index) => {
     setOpenIndex(openIndex === index ? null : index);
   };
+
+  if (questions.length === 0) return null;
 
   return (
     <section className="py-20 bg-background-alt relative" id="faq">
@@ -13,21 +21,21 @@ const FAQ = ({ data }) => {
         {/* 1. Header */}
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-extrabold text-heading-brown mb-6 leading-tight">
-            {data.title}
+            {title}
             <span className="block w-20 h-1.5 bg-gold-cta mx-auto mt-4 rounded-full shadow-sm"></span>
           </h2>
           <p className="text-xl text-body-text/80 font-medium">
-            {data.subtitle}
+            {subtitle}
           </p>
         </div>
 
         {/* 2. Accordion */}
         <div className="space-y-4">
-          {data.questions.map((item, index) => {
+          {questions.map((item, index) => {
             const isOpen = openIndex === index;
             return (
               <div
-                key={item.id}
+                key={item.id || index}
                 className={`
                             bg-white rounded-[18px] overflow-hidden border transition-all duration-300
                             ${isOpen ? 'border-gold-cta shadow-md' : 'border-transparent shadow-sm hover:shadow-md hover:border-gray-200'}

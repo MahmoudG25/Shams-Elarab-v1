@@ -1,79 +1,57 @@
-import React from 'react';
-import { Swiper, SwiperSlide } from 'swiper/react';
-import { Autoplay, EffectFade } from 'swiper/modules';
-// Import Swiper styles
-import 'swiper/css';
-import 'swiper/css/effect-fade';
+import React, { useState, useEffect } from 'react';
 
 const CTA = ({ data }) => {
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+  // Use data images or fallback
+  const images = (data?.images && data.images.length > 0)
+    ? data.images
+    : [
+      'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=1471&auto=format&fit=crop'
+    ];
+
+  useEffect(() => {
+    if (images.length <= 1) return;
+
+    const interval = setInterval(() => {
+      setCurrentImageIndex((prev) => (prev + 1) % images.length);
+    }, 5000); // Change every 5 seconds
+
+    return () => clearInterval(interval);
+  }, [images.length]);
 
   return (
-    <section className="relative w-full h-[60vh] md:h-[75vh] overflow-hidden bg-black" id="cta">
+    <section className="relative w-full h-[500px] flex items-center justify-center overflow-hidden">
 
-      {/* 1. Background Slider */}
-      <div className="absolute inset-0 w-full h-full z-0">
-        <Swiper
-          modules={[Autoplay, EffectFade]}
-          effect="fade"
-          loop={true}
-          speed={2500}
-          autoplay={{
-            delay: 4000,
-            disableOnInteraction: false,
-          }}
-          className="w-full h-full"
-        >
-          {data.images.map((img, index) => (
-            <SwiperSlide key={index} className="w-full h-full">
-              <img
-                src={img}
-                alt={`Background ${index}`}
-                className="w-full h-full object-cover opacity-60 animate-kenburns" // Added custom subtle zoom animation class if exists, or standard styling
-                style={{ animation: `kenburns 20s infinite alternate` }}
-              />
-            </SwiperSlide>
-          ))}
-        </Swiper>
+      {/* Background Slider */}
+      <div className="absolute inset-0 z-0">
+        {images.map((img, index) => (
+          <div
+            key={index}
+            className={`absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ease-in-out ${index === currentImageIndex ? 'opacity-100' : 'opacity-0'
+              }`}
+            style={{ backgroundImage: `url(${img})` }}
+          />
+        ))}
+        {/* Overlay - restored but lighter if needed, or user can remove. 
+             User commented out overlays in previous step, so I'll keep it minimal or remove if they want pure images, 
+             but text needs contrast. I will add a subtle gradient. */}
+        <div className="absolute inset-0 bg-black/50 z-10"></div>
       </div>
 
-      {/* 2. Dark Overlay Layer with Vignette */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-black/40 z-10"></div>
-      <div className="absolute inset-0 bg-radial-vignette opacity-70 z-10 pointer-events-none"></div>
-
-      {/* 3. Centered Content */}
-      <div className="relative z-20 h-full flex flex-col items-center justify-center text-center px-6 max-w-4xl mx-auto">
-
-        <h2 className="text-4xl md:text-5xl lg:text-6xl font-black text-white mb-6 leading-tight drop-shadow-2xl">
-          {data.heading}
+      <div className="relative z-20 text-center max-w-4xl mx-auto px-6">
+        {/* Content */}
+        <h2 className="text-4xl md:text-6xl font-black text-white mb-6 leading-tight drop-shadow-lg">
+          {data?.title || "هل أنت مستعد لتغيير مستقبلك؟"}
         </h2>
-
-        <p className="text-xl md:text-3xl text-gray-200 font-medium mb-12 max-w-2xl leading-relaxed drop-shadow-md border-b-2 border-gold-cta/60 pb-8 inline-block">
-          {data.subheading}
+        <p className="text-xl text-gray-200 mb-10 max-w-2xl mx-auto font-medium drop-shadow-md">
+          {data?.subtitle || "ابدأ رحلتك التعليمية الآن وانضم إلى آلاف المتعلمين الناجحين."}
         </p>
 
-        <button className="px-12 md:px-16 py-5 md:py-6 bg-gold-cta hover:bg-white hover:text-heading-brown text-white font-black text-xl md:text-2xl rounded-full shadow-2xl hover:shadow-[0_0_30px_rgba(236,182,19,0.6)] transition-all transform hover:-translate-y-1 hover:scale-105 flex items-center gap-4 group">
-          <span>{data.cta}</span>
-          <span className="material-symbols-outlined text-3xl rtl:rotate-180 group-hover:translate-x-[-4px] transition-transform">arrow_forward</span>
+        <button className="px-12 py-5 bg-primary hover:bg-gold-cta text-white font-bold text-xl rounded-full shadow-2xl hover:shadow-primary/50 transition-all transform hover:-translate-y-1 hover:scale-105 active:scale-95 duration-300">
+          {data?.buttonText || "اشترك الآن"}
         </button>
-
-        {/* Trust / Guarantee Badge */}
-        <div className="mt-12 flex items-center gap-2 text-white/50 text-sm font-bold tracking-wider uppercase">
-          <span className="material-symbols-outlined text-gold-cta">verified_user</span>
-          <span>ضمان استرداد الأموال لمدة 14 يومًا</span>
-        </div>
-
       </div>
-
-      {/* CSS for Ken Burns Effect (Inline for simplicity or could be in global CSS) */}
-      <style>{`
-        @keyframes kenburns {
-            0% { transform: scale(1); }
-            100% { transform: scale(1.15); }
-        }
-        .bg-radial-vignette {
-            background: radial-gradient(circle, transparent 40%, rgba(0,0,0,0.8) 100%);
-        }
-      `}</style>
     </section>
   );
 };

@@ -7,10 +7,19 @@ import 'swiper/css';
 import 'swiper/css/autoplay';
 
 const Partners = ({ data }) => {
+  // Data is now an array of partner objects { id, name, logo }
+  const partners = Array.isArray(data) ? data : (data?.logos || []);
+  const title = data?.title || 'شركاء النجاح';
+
+  if (!partners || partners.length === 0) {
+    console.warn("Partners component received empty data:", data);
+    return null;
+  }
+
   return (
-    <section className="w-full bg-surface-white border-y border-border-light py-10 overflow-hidden relative" aria-label="Trusted By">
+    <section className="w-full bg-surface-white border-y border-border-light py-2 overflow-hidden relative" aria-label="Trusted By">
       <div className="max-w-7xl mx-auto px-6 mb-8 text-center">
-        <h2 className="text-sm font-bold text-gray-400 uppercase tracking-[0.2em]">{data.title}</h2>
+        <h2 className="text-sm font-bold text-gray-400 uppercase tracking-[0.2em]">{title}</h2>
       </div>
 
       {/* Fade Gradient Masks */}
@@ -37,14 +46,14 @@ const Partners = ({ data }) => {
               to fill the screen and transition smoothly. 
               3x duplication is usually safe for any screen size.
           */}
-          {[...data.logos, ...data.logos, ...data.logos].map((logo, index) => (
+          {[...partners, ...partners, ...partners].map((partner, index) => (
             <SwiperSlide key={index} className="!w-auto">
               <div
-                className="flex items-center justify-center shrink-0 mx-8 md:mx-16 w-32 md:w-44 transition-all duration-300 transform hover:scale-105 hover:brightness-110 h-20"
+                className="flex items-center justify-center shrink-0 mx-8 md:mx-16 w-40 md:w-44 transition-all duration-300 transform hover:scale-105 hover:brightness-110 h-20"
               >
                 <img
-                  src={logo.src}
-                  alt={logo.name}
+                  src={partner.logo || partner.src} // Handle both new schema (logo) and potential old schema (src)
+                  alt={partner.name}
                   className="w-full h-full object-contain max-h-12 md:max-h-14 drop-shadow-sm"
                   draggable="false"
                 />

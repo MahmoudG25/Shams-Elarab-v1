@@ -36,11 +36,12 @@ const Home = () => {
     <main>
       <Hero data={homeData.hero} />
       <Partners data={homeData.partners} />
+      {/* Diagnosis removed or needs data? Keeping placeholder if it doesn't crash, else remove. HomeEditPage doesn't manage it. */}
       <Diagnosis data={homeData.diagnosis} />
       <Tracks data={homeData.tracks} />
-      <Roadmap data={homeData.homeRoadmap} />
+      <Roadmap data={homeData.homeRoadmap || { steps: [] }} />
       <Pricing data={homeData.pricing} />
-      <Testimonials data={homeData.testimonials} />
+      <Testimonials testimonials={homeData.testimonials} mission={homeData.mission} />
       <CTA data={homeData.ctaFinal} />
       <FAQ data={homeData.faq} />
       <Mission data={homeData.mission} />

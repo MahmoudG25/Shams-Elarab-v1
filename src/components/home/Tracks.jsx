@@ -2,13 +2,15 @@ import React, { useState, useRef } from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Autoplay } from 'swiper/modules';
 const Tracks = ({ data }) => {
-  const [activeTab, setActiveTab] = useState(data.tabs[0]);
+  const tabs = data?.tabs || [];
+  const items = data?.items || [];
+  const [activeTab, setActiveTab] = useState(tabs[0] || 'All');
   const swiperRef = useRef(null);
 
   // Filter items based on active tab
-  const filteredItems = activeTab === data.tabs[0]
-    ? data.items
-    : data.items.filter(item => item.category === activeTab);
+  const filteredItems = activeTab === (tabs[0] || 'All')
+    ? items
+    : items.filter(item => item.category === activeTab);
 
   // Ensure we have enough slides for loop if filtration results in too few
   // Swiper loop needs at least slidesPerView * 2 usually for best results.
@@ -132,7 +134,7 @@ const Tracks = ({ data }) => {
                       <div className="flex flex-col gap-2">
                         <span className="text-gray-200 text-sm font-bold opacity-90">{item.from}</span>
                         <div className="flex items-center gap-3 mt-1">
-                          <span className="material-symbols-outlined text-gold-cta text-2xl rtl:rotate-180 animate-pulse">arrow_right_alt</span>
+                          {/* <span className="material-symbols-outlined text-gold-cta text-2xl rtl:rotate-180 animate-pulse">arrow_right_alt</span> */}
                           <span className="text-gold-cta font-black text-xl bg-black/30 px-4 py-1.5 rounded-xl border border-gold-cta/30 backdrop-blur-md">
                             {item.to}
                           </span>
@@ -167,7 +169,7 @@ const Tracks = ({ data }) => {
           {/* Central CTA */}
           <button className="px-14 py-5 bg-gold-cta hover:bg-heading-brown text-white font-black text-xl rounded-full shadow-xl hover:shadow-2xl transition-all transform hover:-translate-y-1 hover:scale-105 min-w-[240px] flex items-center justify-center gap-3">
             <span>{data.cta_text || "اختر مسارك الآن"}</span>
-            <span className="material-symbols-outlined text-2xl rtl:rotate-180">arrow_forward</span>
+            {/* <span className="material-symbols-outlined text-2xl rtl:rotate-180">arrow_forward</span> */}
           </button>
 
           {/* Visual RIGHT Button -> Next Slide (Moves items LEFT) 

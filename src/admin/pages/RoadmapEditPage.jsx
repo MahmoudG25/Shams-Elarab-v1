@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { addToast } from '../../store/slices/uiSlice';
 import DragDropList from '../components/DragDropList';
+import MediaUploader from '../components/MediaUploader';
 import { MdSave, MdArrowBack, MdAdd } from 'react-icons/md';
 import { v4 as uuidv4 } from 'uuid';
 import { roadmapService } from '../../services/roadmapService';
@@ -21,7 +22,11 @@ const RoadmapEditPage = () => {
     description: '',
     level: 'Beginner',
     modules: [], // { id, title, courseId, locked, ... }
-    pricing: { price: 0, discount: 0 }
+    price: 0,
+    discount: 0,
+    tag: '',
+    isPublished: false,
+    image: ''
   });
 
   const [selectedCourseId, setSelectedCourseId] = useState('');
@@ -212,6 +217,27 @@ const RoadmapEditPage = () => {
           <div className="bg-white p-6 rounded-2xl shadow-sm border border-border-light space-y-4">
             <h3 className="font-bold text-lg mb-2">الإعدادات</h3>
 
+            <div className="flex items-center gap-2 mb-4">
+              <input
+                type="checkbox"
+                id="isPublished"
+                checked={formData.isPublished}
+                onChange={e => handleChange('isPublished', e.target.checked)}
+                className="w-5 h-5 text-primary rounded border-gray-300 focus:ring-primary"
+              />
+              <label htmlFor="isPublished" className="text-sm font-medium text-gray-700 select-none cursor-pointer">
+                نشر المسار (Public)
+              </label>
+            </div>
+
+            <div>
+              <MediaUploader
+                label="صورة المسار"
+                currentUrl={formData.image}
+                onUploadComplete={(data) => handleChange('image', data ? data.secure_url : '')}
+              />
+            </div>
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">المستوى</label>
               <select
@@ -224,6 +250,38 @@ const RoadmapEditPage = () => {
                 <option>Advanced</option>
                 <option>All Levels</option>
               </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">الشارة / Tag</label>
+              <input
+                type="text"
+                value={formData.tag}
+                onChange={e => handleChange('tag', e.target.value)}
+                placeholder="مثال: الأكثر مبيعاً"
+                className="w-full p-2 rounded-lg border border-gray-200"
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">السعر</label>
+                <input
+                  type="number"
+                  value={formData.price}
+                  onChange={e => handleChange('price', Number(e.target.value))}
+                  className="w-full p-2 rounded-lg border border-gray-200"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">الخصم</label>
+                <input
+                  type="number"
+                  value={formData.discount}
+                  onChange={e => handleChange('discount', Number(e.target.value))}
+                  className="w-full p-2 rounded-lg border border-gray-200"
+                />
+              </div>
             </div>
           </div>
         </div>
