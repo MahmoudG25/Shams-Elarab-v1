@@ -26,7 +26,9 @@ const RoadmapEditPage = () => {
     discount: 0,
     tag: '',
     isPublished: false,
-    image: ''
+    image: '',
+    instructor: { name: '', role: '', image: '' },
+    outcomes: []
   });
 
   const [selectedCourseId, setSelectedCourseId] = useState('');
@@ -75,6 +77,7 @@ const RoadmapEditPage = () => {
       courseId: course.id, // Link to course
       locked: true,
       description: course.description,
+      image: course.image || '', // Copy image from course
       outcomes: course.learning_points?.slice(0, 3) || [] // Default outcomes
     };
 
@@ -214,6 +217,91 @@ const RoadmapEditPage = () => {
         </div>
 
         <div className="space-y-8">
+          {/* Instructor & Outcomes */}
+          <div className="bg-white p-6 rounded-2xl shadow-sm border border-border-light space-y-6">
+            <h3 className="font-bold text-lg mb-2">المدرب والمخرجات</h3>
+
+            {/* Instructor */}
+            <div className="p-4 bg-gray-50 rounded-xl space-y-4">
+              <h4 className="font-bold text-sm text-gray-700">معلومات المدرب</h4>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">اسم المدرب</label>
+                <input
+                  type="text"
+                  value={formData.instructor?.name || ''}
+                  onChange={e => setFormData(prev => ({
+                    ...prev,
+                    instructor: { ...prev.instructor, name: e.target.value }
+                  }))}
+                  className="w-full p-2 rounded-lg border border-gray-200"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">المسمى الوظيفي</label>
+                <input
+                  type="text"
+                  value={formData.instructor?.role || ''}
+                  onChange={e => setFormData(prev => ({
+                    ...prev,
+                    instructor: { ...prev.instructor, role: e.target.value }
+                  }))}
+                  className="w-full p-2 rounded-lg border border-gray-200"
+                />
+              </div>
+
+              <MediaUploader
+                label="صورة المدرب"
+                currentUrl={formData.instructor?.image}
+                onUploadComplete={(data) => setFormData(prev => ({
+                  ...prev,
+                  instructor: { ...prev.instructor, image: data.secure_url }
+                }))}
+              />
+            </div>
+
+            {/* Outcomes */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">ماذا سيتعلم الطالب؟ (مخرجات التعلم)</label>
+              <div className="space-y-2">
+                {(formData.outcomes || []).map((outcome, index) => (
+                  <div key={index} className="flex gap-2">
+                    <input
+                      type="text"
+                      value={outcome}
+                      onChange={(e) => {
+                        const newOutcomes = [...(formData.outcomes || [])];
+                        newOutcomes[index] = e.target.value;
+                        setFormData(prev => ({ ...prev, outcomes: newOutcomes }));
+                      }}
+                      className="flex-grow p-2 rounded-lg border border-gray-200"
+                      placeholder="نقطة تعلم..."
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const newOutcomes = (formData.outcomes || []).filter((_, i) => i !== index);
+                        setFormData(prev => ({ ...prev, outcomes: newOutcomes }));
+                      }}
+                      className="text-red-500 p-2 hover:bg-red-50 rounded"
+                    >
+                      <span className="material-symbols-outlined">delete</span>
+                    </button>
+                  </div>
+                ))}
+                <button
+                  type="button"
+                  onClick={() => setFormData(prev => ({ ...prev, outcomes: [...(prev.outcomes || []), ''] }))}
+                  className="text-primary font-bold text-sm flex items-center gap-1 mt-2 hover:underline"
+                >
+                  <MdAdd /> إضافة نقطة تعلم
+                </button>
+              </div>
+            </div>
+
+          </div>
+
           <div className="bg-white p-6 rounded-2xl shadow-sm border border-border-light space-y-4">
             <h3 className="font-bold text-lg mb-2">الإعدادات</h3>
 

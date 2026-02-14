@@ -18,6 +18,14 @@ const PathOverview = ({ roadmap }) => {
 
   return (
     <div className="h-fit sticky top-32">
+
+      {/* Roadmap Image (New) */}
+      {roadmap.image && (
+        <div className="mb-6 rounded-xl overflow-hidden shadow-sm aspect-video">
+          <img src={roadmap.image} alt={roadmap.title} className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" />
+        </div>
+      )}
+
       {/* Header Info */}
       <div className="mb-6">
         <div className="flex items-center gap-2 mb-2">

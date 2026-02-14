@@ -14,6 +14,17 @@ const RoadmapHero = ({ roadmap }) => {
 
   return (
     <>
+      {/* 0. Banner Image (If available) */}
+      {roadmap.image && (
+        <div className="w-full h-64 md:h-80 rounded-[1rem] overflow-hidden shadow-sm mb-8 relative">
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent z-10"></div>
+          <img src={roadmap.image} alt={roadmap.title} className="w-full h-full object-cover" />
+          <div className="absolute bottom-6 right-8 z-20 text-white">
+            <span className="bg-primary text-heading-brown font-bold px-3 py-1 rounded text-sm mb-2 inline-block">مسار تعليمي شامل</span>
+          </div>
+        </div>
+      )}
+
       {/* 1. Main Info Card */}
       <div className="bg-white rounded-[1rem] border border-gray-100 p-8 lg:p-10 shadow-sm mb-8 relative overflow-hidden">
 
