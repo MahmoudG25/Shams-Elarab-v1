@@ -15,17 +15,47 @@ const PathsPage = () => {
   });
 
   useEffect(() => {
-    const fetchRoadmaps = async () => {
+    const fetchRoadmapsAndCourses = async () => {
       try {
-        const data = await roadmapService.getAllRoadmaps();
-        setRoadmaps(data);
+        setLoading(true);
+        // Fetch both roadmaps and courses in parallel
+        const [roadmapsData, coursesData] = await Promise.all([
+          roadmapService.getAllRoadmaps(),
+          import('../services/courseService').then(m => m.courseService.getAllCourses())
+        ]);
+
+        // Create a course lookup map for faster access
+        const courseMap = {};
+        coursesData.forEach(c => {
+          courseMap[c.id] = c;
+        });
+
+        // Hydrate roadmaps with course images if missing
+        const hydratedRoadmaps = roadmapsData.map(roadmap => {
+          if (!roadmap.modules) return roadmap;
+
+          const newModules = roadmap.modules.map(mod => {
+            // If module has no image but links to a course, try to get image from courseMap
+            if ((!mod.image || mod.image.trim() === '') && mod.courseId && courseMap[mod.courseId]) {
+              return {
+                ...mod,
+                image: courseMap[mod.courseId].image || courseMap[mod.courseId].media?.thumbnail || courseMap[mod.courseId].preview_image || ''
+              };
+            }
+            return mod;
+          });
+
+          return { ...roadmap, modules: newModules };
+        });
+
+        setRoadmaps(hydratedRoadmaps);
       } catch (error) {
-        console.error("Error fetching roadmaps:", error);
+        console.error("Error fetching data:", error);
       } finally {
         setLoading(false);
       }
     };
-    fetchRoadmaps();
+    fetchRoadmapsAndCourses();
   }, []);
 
   const filteredRoadmaps = React.useMemo(() => {

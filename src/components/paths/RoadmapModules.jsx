@@ -8,10 +8,19 @@ const RoadmapModules = ({ modules }) => {
       <div className="absolute -right-[9px] -top-2 w-4 h-4 rounded-full bg-primary ring-4 ring-white z-10"></div>
 
       {modules.map((module, index) => {
-        // Construct image path if not full url
-        const imagePath = module.image?.startsWith('http') || module.image?.startsWith('/')
-          ? module.image
-          : `/src/assets/coures-photo/${module.image}`;
+        // Hybrid Image Logic:
+        // 1. If it's a full URL (http/https), use it directly (Cloudinary/Firebase).
+        // 2. If it's a legacy filename (e.g. 'react.png'), prepend the assets path.
+        // 3. Defaults to empty string if missing.
+        let imagePath = '';
+        if (module.image) {
+          if (module.image.startsWith('http') || module.image.startsWith('/') || module.image.includes('cloudinary')) {
+            imagePath = module.image;
+          } else {
+            // Assume legacy local asset
+            imagePath = `/src/assets/coures-photo/${module.image}`;
+          }
+        }
 
         return (
           <div key={module.id || index} className="relative pl-0 lg:pl-0">
@@ -23,8 +32,17 @@ const RoadmapModules = ({ modules }) => {
               <div className="flex flex-col md:flex-row gap-6">
                 {/* Course Image */}
                 <div className="w-full md:w-56 h-36 shrink-0 rounded-xl overflow-hidden relative bg-gray-100 border border-gray-100">
-                  {module.image ? (
-                    <img src={imagePath} alt={module.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                  {imagePath ? (
+                    <img
+                      src={imagePath}
+                      alt={module.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      onError={(e) => {
+                        // Fallback on error
+                        e.target.onerror = null;
+                        e.target.src = 'https://placehold.co/600x400/f3f4f6/9ca3af?text=No+Image';
+                      }}
+                    />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-gray-300">
                       <span className="material-symbols-outlined text-5xl">image</span>

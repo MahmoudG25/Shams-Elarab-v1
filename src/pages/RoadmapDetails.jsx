@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import RoadmapHero from '../components/paths/RoadmapHero';
 import RoadmapModules from '../components/paths/RoadmapModules';
 import { roadmapService } from '../services/roadmapService';
+import { courseService } from '../services/courseService';
 
 const RoadmapDetails = () => {
   const { id } = useParams();
@@ -13,6 +14,44 @@ const RoadmapDetails = () => {
     const fetchRoadmap = async () => {
       try {
         const data = await roadmapService.getRoadmapById(id);
+
+        // Hydrate module images if missing
+        if (data && data.modules) {
+          console.log("Hydrating modules for roadmap:", data.title);
+          const modulesWithImages = await Promise.all(data.modules.map(async (mod) => {
+            // Valid image check: must be non-empty string
+            if (mod.image && mod.image.trim() !== '') {
+              return mod;
+            }
+
+            if (!mod.courseId) {
+              console.warn("Module missing courseId:", mod.title);
+              return mod;
+            }
+
+            // Fetch course to get image
+            try {
+              const courseIdStr = String(mod.courseId);
+              const course = await courseService.getCourseById(courseIdStr);
+              if (course) {
+                // console.log("Fetched course:", course.title, "Image:", course.image);
+                return {
+                  ...mod,
+                  image: (mod.image && mod.image.trim() !== '') ? mod.image : (course.image || course.media?.thumbnail || course.preview_image || ''),
+                  level: mod.level || course.level || 'Beginner',
+                  lessons_count: mod.lessons_count || course.lessons_count || 12
+                };
+              } else {
+                console.warn("Course not found for ID:", mod.courseId);
+              }
+            } catch (e) {
+              console.warn(`Failed to fetch image for course ${mod.courseId}`, e);
+            }
+            return mod;
+          }));
+          data.modules = modulesWithImages;
+        }
+
         setRoadmap(data);
       } catch (error) {
         console.error("Error fetching roadmap:", error);

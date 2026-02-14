@@ -77,7 +77,9 @@ const RoadmapEditPage = () => {
       courseId: course.id, // Link to course
       locked: true,
       description: course.description,
-      image: course.image || '', // Copy image from course
+      image: course.image || course.media?.thumbnail || course.preview_image || '', // Copy image from course (robust check)
+      level: course.level || 'Beginner',
+      lessons_count: course.lessons_count || 0,
       outcomes: course.learning_points?.slice(0, 3) || [] // Default outcomes
     };
 
