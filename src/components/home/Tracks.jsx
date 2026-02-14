@@ -18,7 +18,7 @@ const Tracks = ({ data }) => {
   const enableLoop = filteredItems.length >= 3;
 
   return (
-    <section className="py-20 bg-surface-white relative border-b border-border-light w-full overflow-hidden" id="tracks">
+    <section className="py-24 bg-surface-white relative border-b border-border-light w-full overflow-hidden" id="tracks">
       <div className="max-w-7xl mx-auto px-4 md:px-6 relative">
 
         {/* 1. Header */}

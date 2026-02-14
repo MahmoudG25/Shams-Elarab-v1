@@ -4,7 +4,7 @@ const Diagnosis = ({ data }) => {
   if (!data || !data.items) return null;
 
   return (
-    <section className="py-24 bg-surface-white relative overflow-hidden" id="diagnosis">
+    <section className="py-24 bg-gray-50 relative overflow-hidden" id="diagnosis">
       {/* Background Elements */}
       <div className="absolute top-0 left-0 w-full h-full pointer-events-none overflow-hidden">
         <div className="absolute top-[-10%] right-[-5%] w-[500px] h-[500px] bg-primary/5 rounded-full blur-3xl opacity-50"></div>

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { FaWhatsapp, FaHourglassHalf, FaFileInvoice, FaRegClock, FaCircleInfo } from 'react-icons/fa6';
+import { Link, useLocation, Navigate } from 'react-router-dom';
+import { FaWhatsapp, FaHourglassHalf, FaFileInvoice, FaRegClock, FaCircleInfo, FaCopy, FaArrowLeft } from 'react-icons/fa6';
 
 // --- Helper Components ---
 
@@ -34,29 +34,64 @@ const OrderMetaCard = ({ order }) => (
   <div className="bg-[#F9FAFB] p-8 rounded-[1.5rem] border border-gray-100 mb-10">
     <div className="flex flex-col md:flex-row justify-between items-center gap-6 md:gap-0 divide-y md:divide-y-0 md:divide-x md:divide-x-reverse divide-gray-200">
 
-      {/* Order ID */}
+      {/* Order ID & Copy */}
       <div className="flex-1 flex flex-col items-center gap-2">
         <span className="text-sm text-gray-400 font-medium">رقم الطلب</span>
-        <span className="font-bold text-xl text-gray-900 dir-ltr">#{order.orderId}</span>
+        <div className="flex items-center gap-2 bg-white px-3 py-1 rounded-lg border border-gray-100 shadow-sm">
+          <span className="font-bold text-xl text-gray-900 dir-ltr select-all max-w-[120px] truncate">{order.id || order.orderId}</span>
+          <button
+            onClick={() => {
+              const id = order.id || order.orderId;
+              navigator.clipboard.writeText(id);
+              // Optional: Show toast or feedback
+            }}
+            className="text-gray-400 hover:text-primary transition-colors p-1"
+            title="نسخ رقم الطلب"
+          >
+            <FaCopy size={14} />
+          </button>
+        </div>
       </div>
 
-      {/* Review Time */}
+      {/* Status Badge */}
       <div className="flex-1 flex flex-col items-center gap-2 w-full md:w-auto pt-4 md:pt-0">
-        <span className="text-sm text-gray-400 font-medium">وقت المراجعة المتوقع</span>
-        <span className="bg-[#e6a219]/10 text-[#e6a219] px-4 py-1.5 rounded-full text-sm font-bold flex items-center gap-2">
-          <FaRegClock className="text-xs" />
-          خلال 24 ساعة
-        </span>
+        <span className="text-sm text-gray-400 font-medium">حالة الطلب</span>
+        {(!order.status || order.status === 'pending') && (
+          <span className="bg-yellow-100 text-yellow-700 px-4 py-1.5 rounded-full text-sm font-bold flex items-center gap-2">
+            <FaHourglassHalf className="text-xs" /> قيد المراجعة
+          </span>
+        )}
+        {order.status === 'approved' && (
+          <span className="bg-green-100 text-green-700 px-4 py-1.5 rounded-full text-sm font-bold flex items-center gap-2">
+            <span className="material-symbols-outlined text-sm font-bold">check</span> مكتمل
+          </span>
+        )}
+        {order.status === 'rejected' && (
+          <span className="bg-red-100 text-red-700 px-4 py-1.5 rounded-full text-sm font-bold flex items-center gap-2">
+            <span className="material-symbols-outlined text-sm font-bold">close</span> مرفوض
+          </span>
+        )}
       </div>
 
-      {/* Uploaded File (if exists) */}
-      {order.receiptFile && (
+      {/* View/Download Receipt */}
+      {(order.receiptUrl || order.receiptFile) && (
         <div className="flex-1 flex flex-col items-center gap-2 w-full md:w-auto pt-4 md:pt-0">
           <span className="text-sm text-gray-400 font-medium">الإيصال المرفق</span>
-          <span className="flex items-center gap-2 text-gray-600 bg-white border border-gray-200 px-4 py-2 rounded-lg text-xs font-medium w-full md:w-auto justify-center max-w-[180px]">
-            <span className="w-2 h-2 rounded-full bg-green-500 flex-shrink-0"></span>
-            <span className="truncate dir-ltr">{order.receiptFile}</span>
-          </span>
+          {order.receiptUrl ? (
+            <a
+              href={order.receiptUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 text-primary hover:text-white hover:bg-primary bg-white border border-primary/20 transition-all px-4 py-2 rounded-lg text-xs font-bold w-full md:w-auto justify-center max-w-[180px]"
+            >
+              <FaFileInvoice /> عرض الإيصال
+            </a>
+          ) : (
+            <span className="flex items-center gap-2 text-gray-600 bg-white border border-gray-200 px-4 py-2 rounded-lg text-xs font-medium w-full md:w-auto justify-center max-w-[180px]">
+              <span className="w-2 h-2 rounded-full bg-green-500 flex-shrink-0"></span>
+              <span className="truncate dir-ltr">{order.receiptFile}</span>
+            </span>
+          )}
         </div>
       )}
 
@@ -127,6 +162,10 @@ const OrderUnderReview = () => {
   };
 
   const firstName = getFirstName(order.customerInfo?.name);
+
+  if (order.status === 'approved') {
+    return <Navigate to="/checkout/success" state={{ order }} replace />;
+  }
 
   return (
     <div className="mt-[6rem]  bg-[#F8F9FB] flex flex-col items-center justify-center p-4 font-sans relative">

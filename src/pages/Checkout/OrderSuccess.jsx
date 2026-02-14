@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, Link } from 'react-router-dom';
-import { FaCheck } from 'react-icons/fa6';
+import { FaCheck, FaArrowLeft, FaRegCopy, FaCloud } from 'react-icons/fa6';
+import { FaRegFolderOpen } from 'react-icons/fa';
 import ProductSummaryCard from '../../components/checkout/ProductSummaryCard';
-import CloudAccessCard from '../../components/checkout/CloudAccessCard';
 import { courseService } from '../../services/courseService';
 import { roadmapService } from '../../services/roadmapService';
 
@@ -10,6 +10,7 @@ const OrderSuccess = () => {
   const location = useLocation();
   const [order, setOrder] = useState(null);
   const [product, setProduct] = useState(null);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     const fetchOrderAndProduct = async () => {
@@ -40,6 +41,14 @@ const OrderSuccess = () => {
     fetchOrderAndProduct();
   }, [location.state]);
 
+  const handleCopyLink = () => {
+    if (order?.accessLink) {
+      navigator.clipboard.writeText(order.accessLink);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
   if (!order || !product) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -48,73 +57,99 @@ const OrderSuccess = () => {
     );
   }
 
+  // Use access link from order if available, otherwise fallback to course page link
+  const contentLink = order.accessLink || (order.productType === 'track' ? `/roadmaps/${order.productId}` : `/courses/${order.productId}`);
+  const isExternalLink = !!order.accessLink;
+
   return (
-    <div className="min-h-screen bg-background-alt pt-28 pb-12 px-4">
-      {/* Background Decoration */}
-      <div className="absolute top-0 left-0 w-full h-full opacity-30 pointer-events-none overflow-hidden">
-        <div className="absolute top-[-10%] right-[-10%] w-[40%] h-[40%] bg-primary/10 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-[20%] left-[-10%] w-[30%] h-[30%] bg-green-500/5 rounded-full blur-3xl"></div>
-      </div>
+    <div className="min-h-screen bg-[#FFFBF5] pt-28 pb-12 px-4 font-sans flex items-center justify-center">
 
-      <div className="max-w-6xl mx-auto relative z-10">
+      <div className="bg-white rounded-3xl shadow-xl w-full max-w-2xl px-8 py-12 text-center relative overflow-hidden">
+        {/* Top Decoration */}
+        <div className="absolute top-0 right-0 w-32 h-32 bg-yellow-50 rounded-bl-full opacity-50 pointer-events-none"></div>
+        <div className="absolute top-0 left-0 w-24 h-24 bg-green-50 rounded-br-full opacity-50 pointer-events-none"></div>
 
-        {/* Success Header */}
-        <div className="text-center mb-12 animate-fade-in-up">
-          <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6 shadow-sm">
-            <FaCheck className="text-5xl text-green-500" />
+        {/* Success Icon */}
+        <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6 shadow-sm animate-scale-in">
+          <FaCheck className="text-4xl text-green-600" />
+        </div>
+
+        <h1 className="text-3xl md:text-4xl font-extrabold text-heading-brown mb-4">
+          تمت عملية الشراء بنجاح!
+        </h1>
+        <p className="text-gray-500 mb-10 text-lg">
+          شكراً لانضمامك إلينا. رحلتك المعرفية مع "شمس العرب" تبدأ الآن.
+        </p>
+
+        {/* Access Box */}
+        <div className="bg-[#FFFAF4] border border-[#F5E6D3] rounded-2xl p-6 mb-8 text-right">
+          <div className="flex items-center gap-2 mb-4 text-heading-brown font-bold text-lg">
+            <FaRegFolderOpen className="text-gold-cta" />
+            <span>الوصول للمحتوى</span>
           </div>
-          <h1 className="text-4xl font-bold text-heading-brown mb-4">
-            تمت عملية الشراء بنجاح
-          </h1>
-          <p className="text-lg text-gray-500 flex items-center justify-center gap-2">
-            شكراً لانضمامك إلينا. تفاصيل طلبك
-            <span className="font-bold bg-white border border-gray-200 px-3 py-1 rounded-lg text-sm mx-1">#{order.orderId}</span>
-            تم إرسالها إلى بريدك الإلكتروني.
+          <p className="text-gray-600 text-sm mb-6 leading-relaxed">
+            يمكنك الوصول إلى مكتبة الدورة التدريبية والملفات المرفقة عبر الرابط التالي. يرجى حفظ الرابط للرجوع إليه لاحقاً.
           </p>
-        </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-          {/* Cloud Access - Takes 2/3 width on large screens */}
-          <div className="lg:col-span-2 order-2 lg:order-1 animate-fade-in-up delay-100">
-            <CloudAccessCard />
+          <div className="flex items-center gap-3">
+            {/* Copy Button */}
+            <button
+              onClick={handleCopyLink}
+              disabled={!order.accessLink}
+              className={`flex-shrink-0 w-32 h-12 rounded-xl font-bold transition-all flex items-center justify-center gap-2
+                ${order.accessLink
+                  ? 'bg-[#F0EBE5] hover:bg-[#E5DFD7] text-heading-brown'
+                  : 'bg-gray-100 text-gray-400 cursor-not-allowed'}`}
+            >
+              {copied ? 'تم النسخ' : 'نسخ الرابط'}
+              {!copied && <FaRegCopy />}
+            </button>
+
+            {/* Link Display */}
+            <div className="flex-grow bg-white border border-gray-200 rounded-xl h-12 flex items-center px-4 relative">
+              <span className="text-gray-500 dir-ltr truncate w-full text-left font-mono text-sm">
+                {order.accessLink || 'بانتظار تفعيل الرابط...'}
+              </span>
+              <FaCloud className="text-gray-400 absolute left-4" />
+            </div>
           </div>
-
-          {/* Product Summary - Takes 1/3 width */}
-          <div className="order-1 lg:order-2 animate-fade-in-up delay-200">
-            {/* We need to extract the card content logic or make ProductSummaryCard completely dynamic. 
-                            If ProductSummaryCard was purely presentational, we could pass props.
-                            Let's assume we update ProductSummaryCard to take props, OR we create a wrapper. 
-                            Actually, I should update ProductSummaryCard to take 'product' as prop.
-                        */}
-            <ProductSummaryCardWrapper product={product} type={order.productType} />
-          </div>
         </div>
 
-        <div className="mt-12 text-center text-sm text-gray-500">
-          <p>هل تواجه مشكلة في الوصول للمحتوى؟</p>
-          <button className="text-primary font-bold hover:underline mt-2 flex items-center justify-center gap-2 mx-auto">
-            <span className="material-symbols-outlined text-lg">support_agent</span>
-            تواصل مع فريق الدعم الفني
-          </button>
-          <p className="mt-8 text-xs text-gray-400">© 2026 منصة شمس العرب التعليمية. جميع الحقوق محفوظة.</p>
+        {/* Main CTA */}
+        {isExternalLink ? (
+          <a
+            href={contentLink}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-full bg-[#D4AF37] text-white text-xl font-bold py-4 rounded-xl shadow-lg hover:bg-[#C5A028] hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 flex items-center justify-center gap-3 mb-8"
+          >
+            فتح المحتوى الآن
+            <FaArrowLeft />
+          </a>
+        ) : (
+          <Link
+            to={contentLink}
+            className="w-full bg-[#D4AF37] text-white text-xl font-bold py-4 rounded-xl shadow-lg hover:bg-[#C5A028] hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 flex items-center justify-center gap-3 mb-8"
+          >
+            فتح المحتوى الآن
+            <FaArrowLeft />
+          </Link>
+        )}
+
+        <p className="text-xs text-gray-400">
+          تم إرسال نسخة من الفاتورة وتفاصيل الدخول إلى بريدك الإلكتروني.
+        </p>
+
+        {/* Footer Links */}
+        <div className="flex items-center justify-center gap-6 mt-12 text-sm text-gray-400">
+          <Link to="/" className="hover:text-primary transition-colors">الصفحة الرئيسية</Link>
+          <span className="w-1 h-1 bg-gray-300 rounded-full"></span>
+          <button className="hover:text-primary transition-colors">الدعم الفني</button>
         </div>
+
       </div>
     </div>
   );
-};
-
-// Wrapper or modified component. Since I can't modify ProductSummaryCard in the same tool call easily without risk (it's separate file), 
-// I'll create a local version or assume ProductSummaryCard will be updated. 
-// Ideally I should update ProductSummaryCard.jsx to accept props. 
-// For now, I will modify ProductSummaryCard in the next step to accept props, 
-// and here I will use it as if it accepts them.
-// Wait, I can define a local functional component if I want, but better to use the imported one.
-// Let's pass the product prop to ProductSummaryCard.
-
-const ProductSummaryCardWrapper = ({ product, type }) => {
-  // This is just a placeholder to show intent. 
-  // I will actually pass these props to the real ProductSummaryCard in the JSX above.
-  return <ProductSummaryCard product={product} type={type} />;
 };
 
 

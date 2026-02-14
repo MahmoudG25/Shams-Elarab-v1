@@ -6,14 +6,16 @@ import { MdWarning } from 'react-icons/md';
 const ConfirmModal = () => {
   const { isOpen, type, props } = useSelector(state => state.ui.modal);
   const dispatch = useDispatch();
+  const [inputValue, setInputValue] = React.useState('');
 
   if (!isOpen || type !== 'CONFIRM') return null;
 
   const { title, message, onConfirm, confirmText = 'تأكيد', cancelText = 'إلغاء', isDestructive = false } = props;
 
   const handleConfirm = () => {
-    if (onConfirm) onConfirm();
+    if (onConfirm) onConfirm(inputValue); // Pass input value
     dispatch(closeModal());
+    setInputValue(''); // Reset
   };
 
   return (
@@ -27,6 +29,20 @@ const ConfirmModal = () => {
           <h3 className="text-lg font-bold text-gray-900 mb-2">{title}</h3>
           <p className="text-sm text-gray-500 mb-6">{message}</p>
 
+          {props.showInput && (
+            <div className="w-full mb-6">
+              <label className="block text-left text-sm font-bold text-gray-700 mb-2">{props.inputLabel || 'Input'}</label>
+              <input
+                type="text"
+                placeholder={props.inputPlaceholder || ''}
+                className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:border-primary text-right"
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+              />
+              <p className="text-xs text-gray-400 mt-1 text-right">{props.inputHelp}</p>
+            </div>
+          )}
+
           <div className="flex gap-3 w-full">
             <button
               onClick={() => dispatch(closeModal())}
@@ -35,10 +51,11 @@ const ConfirmModal = () => {
               {cancelText}
             </button>
             <button
-              onClick={handleConfirm}
+              onClick={() => handleConfirm()}
+              // We need to pass the input value to handleConfirm
               className={`flex-1 py-2.5 px-4 rounded-xl font-medium text-white shadow-lg shadow-blue-500/30 transition-shadow ${isDestructive
-                  ? 'bg-red-500 hover:bg-red-600 shadow-red-500/30'
-                  : 'bg-primary hover:bg-gold-cta'
+                ? 'bg-red-500 hover:bg-red-600 shadow-red-500/30'
+                : 'bg-primary hover:bg-gold-cta'
                 }`}
             >
               {confirmText}

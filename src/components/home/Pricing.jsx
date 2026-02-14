@@ -5,7 +5,7 @@ const Pricing = ({ data }) => {
   if (!plans.length) return null;
 
   return (
-    <section className="py-20 bg-surface-white relative overflow-hidden" id="pricing">
+    <section className="py-24 bg-surface-white relative overflow-hidden" id="pricing">
       <div className="max-w-7xl mx-auto px-6 relative z-10">
 
         {/* 1. Header */}

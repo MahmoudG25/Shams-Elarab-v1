@@ -29,19 +29,28 @@ const OrdersListPage = () => {
   }, []);
 
   const handleStatusUpdate = async (order, newStatus) => {
+    const isApproval = newStatus === 'approved';
+
     dispatch(openModal({
       type: 'CONFIRM',
       props: {
-        title: newStatus === 'approved' ? 'قبول الطلب' : 'رفض الطلب',
-        message: `هل أنت متأكد من ${newStatus === 'approved' ? 'قبول' : 'رفض'} طلب "${order.customerName}"؟`,
-        confirmText: newStatus === 'approved' ? 'قبول' : 'رفض',
+        title: isApproval ? 'قبول الطلب' : 'رفض الطلب',
+        message: `هل أنت متأكد من ${isApproval ? 'قبول' : 'رفض'} طلب "${order.customerName}"؟`,
+        confirmText: isApproval ? 'قبول' : 'رفض',
         isDestructive: newStatus === 'rejected',
-        onConfirm: async () => {
+
+        // Input for Access Link (Only for Approval)
+        showInput: isApproval,
+        inputLabel: 'رابط الوصول (اختياري)',
+        inputPlaceholder: 'https://cloud.shamsalarab.com/access/...',
+        inputHelp: 'أدخل رابط المجلد السحابي أو المحتوى هنا. سيظهر هذا الرابط للمستخدم في صفحة النجاح.',
+
+        onConfirm: async (inputValue) => {
           try {
-            await orderService.updateStatus(order.id, newStatus);
-            dispatch(addToast({ type: 'success', message: `تم ${newStatus === 'approved' ? 'قبول' : 'رفض'} الطلب بنجاح` }));
+            await orderService.updateStatus(order.id, newStatus, inputValue);
+            dispatch(addToast({ type: 'success', message: `تم ${isApproval ? 'قبول' : 'رفض'} الطلب بنجاح` }));
             // Refresh local state optimistically or re-fetch
-            setOrders(prev => prev.map(o => o.id === order.id ? { ...o, status: newStatus } : o));
+            setOrders(prev => prev.map(o => o.id === order.id ? { ...o, status: newStatus, accessLink: inputValue } : o));
           } catch (error) {
             console.error("Update failed:", error);
             dispatch(addToast({ type: 'error', message: 'فشل تحديث الحالة' }));
@@ -55,7 +64,14 @@ const OrdersListPage = () => {
     if (!order.receiptUrl) {
       return dispatch(addToast({ type: 'info', message: 'لا يوجد إيصال مرفق' }));
     }
-    window.open(order.receiptUrl, '_blank');
+
+    // Check if it's a valid URL (roughly)
+    if (order.receiptUrl.startsWith('http')) {
+      window.open(order.receiptUrl, '_blank');
+    } else {
+      // It's likely a legacy order with just a filename
+      dispatch(addToast({ type: 'warning', message: `ملف قديم (غير مرفوع): ${order.receiptUrl}` }));
+    }
   };
 
   const filteredOrders = filter === 'all'
@@ -153,6 +169,60 @@ const OrdersListPage = () => {
 
   if (loading) return <div>Loading...</div>;
 
+  const handleDeleteOrder = (order) => {
+    dispatch(openModal({
+      type: 'CONFIRM',
+      props: {
+        title: 'حذف الطلب',
+        message: `هل أنت متأكد من حذف طلب "${order.customerName}" نهائياً؟`,
+        confirmText: 'حذف',
+        isDestructive: true,
+        onConfirm: async () => {
+          try {
+            await orderService.deleteOrder(order.id);
+            dispatch(addToast({ type: 'success', message: 'تم حذف الطلب بنجاح' }));
+            setOrders(prev => prev.filter(o => o.id !== order.id));
+          } catch (error) {
+            console.error("Delete failed:", error);
+            dispatch(addToast({ type: 'error', message: 'فشل حذف الطلب' }));
+          }
+        }
+      }
+    }));
+  };
+
+  const handleEditOrder = (order) => {
+    // Re-use the modal to edit the Access Link
+    dispatch(openModal({
+      type: 'CONFIRM',
+      props: {
+        title: 'تعديل رابط الوصول',
+        message: `تعديل رابط الوصول للطلب رقم #${order.id.slice(0, 8)}`,
+        confirmText: 'حفظ',
+        isDestructive: false,
+
+        showInput: true,
+        inputLabel: 'رابط الوصول',
+        inputPlaceholder: 'https://cloud.shamsalarab.com/access/...',
+        inputHelp: 'تحديث الرابط الذي يظهر للمستخدم في صفحة النجاح.',
+        // Pre-fill if possible? Currently our simple modal might not support pre-fill without more changes.
+        // But the user can type the new one.
+
+        onConfirm: async (inputValue) => {
+          try {
+            // We just update the access link, status remains same
+            await orderService.updateStatus(order.id, order.status, inputValue);
+            dispatch(addToast({ type: 'success', message: 'تم تحديث الرابط بنجاح' }));
+            setOrders(prev => prev.map(o => o.id === order.id ? { ...o, accessLink: inputValue } : o));
+          } catch (error) {
+            console.error("Update failed:", error);
+            dispatch(addToast({ type: 'error', message: 'فشل تحديث الرابط' }));
+          }
+        }
+      }
+    }));
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -166,8 +236,8 @@ const OrdersListPage = () => {
             key={status}
             onClick={() => setFilter(status)}
             className={`px-4 py-2 rounded-lg text-sm font-bold transition-colors ${filter === status
-                ? 'bg-heading-brown text-white'
-                : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+              ? 'bg-heading-brown text-white'
+              : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
               }`}
           >
             {status === 'all' ? 'الكل' :
@@ -181,9 +251,8 @@ const OrdersListPage = () => {
         title={`الطلبات (${filteredOrders.length})`}
         data={filteredOrders}
         columns={columns}
-        // Disable default actions as we have custom ones
-        onDelete={null}
-        onEdit={null}
+        onDelete={handleDeleteOrder}
+        onEdit={handleEditOrder}
       />
     </div>
   );

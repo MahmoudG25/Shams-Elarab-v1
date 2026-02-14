@@ -41,10 +41,9 @@ const Home = () => {
       <Tracks data={homeData.tracks} />
       <Roadmap data={homeData.homeRoadmap || { steps: [] }} />
       <Pricing data={homeData.pricing} />
-      <Testimonials testimonials={homeData.testimonials} mission={homeData.mission} />
+      <Testimonials testimonials={homeData.testimonials} />
       <CTA data={homeData.ctaFinal} />
       <FAQ data={homeData.faq} />
-      <Mission data={homeData.mission} />
     </main>
   );
 };

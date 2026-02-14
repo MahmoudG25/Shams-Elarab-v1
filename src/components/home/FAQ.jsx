@@ -15,7 +15,7 @@ const FAQ = ({ data }) => {
   if (questions.length === 0) return null;
 
   return (
-    <section className="py-20 bg-background-alt relative" id="faq">
+    <section className="py-24 bg-white relative" id="faq">
       <div className="max-w-4xl mx-auto px-6 relative z-10">
 
         {/* 1. Header */}
